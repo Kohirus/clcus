@@ -7,6 +7,7 @@
 #include <mutex>
 #include "usermodel.hpp"
 #include "offlinemessagemodel.hpp"
+#include "friendmodel.hpp"
 #include "json.hpp"
 
 using namespace std;
@@ -24,10 +25,13 @@ public:
     void login(const TcpConnectionPtr& conn, json& js, Timestamp time);
     // 处理注册业务
     void reg(const TcpConnectionPtr& conn, json& js, Timestamp time);
-    // 获取消息对应的处理器
-    MsgHandler getHandler(int msgid);
     // 一对一聊天业务
     void oneChat(const TcpConnectionPtr& conn, json& js, Timestamp time);
+    // 添加好友业务
+    void addFriend(const TcpConnectionPtr& conn, json& js, Timestamp time);
+
+    // 获取消息对应的处理器
+    MsgHandler getHandler(int msgid);
     // 处理客户端异常退出
     void clientCloseException(const TcpConnectionPtr& conn);
     // 服务器异常 业务重置方法
@@ -42,8 +46,9 @@ private:
     // 存储在线用户的通信连接
     unordered_map<int, TcpConnectionPtr> _userConnMap;
     // 数据操作类对象
-    UserModel _userModel;
+    UserModel       _userModel;
     OfflineMsgModel _offlineMsgModel;
+    FriendModel     _firendModel;
     // 互斥锁 保证线程安全
     mutex _connMutex;
 };
