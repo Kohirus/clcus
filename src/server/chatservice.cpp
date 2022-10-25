@@ -2,6 +2,7 @@
 #include "public.hpp"
 #include <muduo/base/Logging.h>
 #include <mutex>
+#include <vector>
 #include "public.hpp"
 
 using namespace std;
@@ -48,6 +49,14 @@ void ChatService::login(const TcpConnectionPtr& conn, json& js, Timestamp time) 
             response["errno"] = 0;
             response["id"]    = user.getId();
             response["name"]  = user.getName();
+
+            // 查询当前用户是否有离线消息
+            vector<string> vec = _offlineMsgModel.query(id);
+            if (!vec.empty()) {
+                response["offlinemsg"] = vec;
+                // 读取离线消息后，删除所有离线消息
+                _offlineMsgModel.remove(id);
+            }
             conn->send(response.dump());
         }
     } else {
@@ -97,7 +106,25 @@ MsgHandler ChatService::getHandler(int msgid) {
     }
 }
 
-void ChatService::clientCloseException(const TcpConnectionPtr* conn) {
+void ChatService::clientCloseException(const TcpConnectionPtr& conn) {
+    User user;
+    {
+        lock_guard<mutex> lock(_connMutex);
+        for (auto it = _userConnMap.begin(); it != _userConnMap.end(); it++) {
+            if (it->second == conn) {
+                // 从哈希表中删除用户的连接信息
+                user.setId(it->first);
+                _userConnMap.erase(it);
+                break;
+            }
+        }
+    }
+
+    // 更新用户的状态信息
+    if (user.getId() != -1) {
+        user.setState("offline");
+        _userModel.updateState(user);
+    }
 }
 
 void ChatService::oneChat(const TcpConnectionPtr& conn, json& js, Timestamp time) {
@@ -113,4 +140,12 @@ void ChatService::oneChat(const TcpConnectionPtr& conn, json& js, Timestamp time
             return;
         }
     }
+
+    // toid不在线 存储离线消息
+    _offlineMsgModel.insert(toid, js.dump());
+}
+
+void ChatService::reset() {
+    // 把所有用户的 online 状态改为 offline
+    _userModel.resetState();
 }

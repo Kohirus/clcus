@@ -4,8 +4,9 @@
 #include <unordered_map>
 #include <functional>
 #include <muduo/net/TcpConnection.h>
-#include <usermodel.hpp>
 #include <mutex>
+#include "usermodel.hpp"
+#include "offlinemessagemodel.hpp"
 #include "json.hpp"
 
 using namespace std;
@@ -28,7 +29,9 @@ public:
     // 一对一聊天业务
     void oneChat(const TcpConnectionPtr& conn, json& js, Timestamp time);
     // 处理客户端异常退出
-    void clientCloseException(const TcpConnectionPtr* conn);
+    void clientCloseException(const TcpConnectionPtr& conn);
+    // 服务器异常 业务重置方法
+    void reset();
 
 private:
     ChatService();
@@ -40,6 +43,7 @@ private:
     unordered_map<int, TcpConnectionPtr> _userConnMap;
     // 数据操作类对象
     UserModel _userModel;
+    OfflineMsgModel _offlineMsgModel;
     // 互斥锁 保证线程安全
     mutex _connMutex;
 };

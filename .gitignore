@@ -1,3 +1,9 @@
 .cache/
 bin/*
 build/*
+
+.cache/clangd/index
+bin/ChatServer
+build/CMakeFiles
+build/src
+build/compile_commands.json
