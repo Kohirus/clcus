@@ -4,7 +4,7 @@
 # compile CXX with /usr/bin/c++
 CXX_DEFINES = 
 
-CXX_INCLUDES = -I/home/kohirus/clucs/include -I/home/kohirus/clucs/include/server -I/home/kohirus/clucs/3rdparty
+CXX_INCLUDES = -I/home/kohirus/clucs/include -I/home/kohirus/clucs/include/server -I/home/kohirus/clucs/include/server/db -I/home/kohirus/clucs/3rdparty
 
 CXX_FLAGS = -g
 
