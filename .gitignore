@@ -7,3 +7,5 @@ bin/ChatServer
 build/CMakeFiles
 build/src
 build/compile_commands.json
+build/CMakeCache.txt
+build/Makefile

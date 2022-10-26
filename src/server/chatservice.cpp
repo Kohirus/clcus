@@ -16,6 +16,7 @@ ChatService* ChatService::instance() {
 ChatService::ChatService() {
     // 用户基本业务管理相关事件的回调注册
     _msgHandlerMap.insert({ LOGIN_MSG, std::bind(&ChatService::login, this, _1, _2, _3) });
+    _msgHandlerMap.insert({ LOGINOUT_MSG, std::bind(&ChatService::loginout, this, _1, _2, _3) });
     _msgHandlerMap.insert({ REG_MSG, std::bind(&ChatService::reg, this, _1, _2, _3) });
     _msgHandlerMap.insert({ ONE_CHAT_MSG, std::bind(&ChatService::oneChat, this, _1, _2, _3) });
     _msgHandlerMap.insert({ ADD_FRIEND_MSG, std::bind(&ChatService::addFriend, this, _1, _2, _3) });
@@ -197,12 +198,12 @@ void ChatService::addGroup(const TcpConnectionPtr& conn, json& js, Timestamp tim
 }
 
 void ChatService::groupChat(const TcpConnectionPtr& conn, json& js, Timestamp time) {
-    int         userid    = js["id"].get<int>();
-    int         groupid   = js["groupid"].get<int>();
-    vector<int> useridVec = _groupModel.queryGroupUsers(userid, groupid);
+    int               userid    = js["id"].get<int>();
+    int               groupid   = js["groupid"].get<int>();
+    vector<int>       useridVec = _groupModel.queryGroupUsers(userid, groupid);
     lock_guard<mutex> lock(_connMutex);
     for (int id : useridVec) {
-        auto              it = _userConnMap.find(id);
+        auto it = _userConnMap.find(id);
         if (it != _userConnMap.end()) {
             // 转发群消息
             it->second->send(js.dump());
@@ -211,4 +212,20 @@ void ChatService::groupChat(const TcpConnectionPtr& conn, json& js, Timestamp ti
             _offlineMsgModel.insert(id, js.dump());
         }
     }
+}
+
+void ChatService::loginout(const TcpConnectionPtr& conn, json& js, Timestamp time) {
+    int userid = js["id"].get<int>();
+
+    {
+        lock_guard<mutex> lock(_connMutex);
+        auto              it = _userConnMap.find(userid);
+        if (it != _userConnMap.end()) {
+            _userConnMap.erase(it);
+        }
+    }
+
+    // 更新用户的状态信息
+    User user(userid, "", "", "offline");
+    _userModel.updateState(user);
 }
