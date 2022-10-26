@@ -8,6 +8,7 @@
 #include "usermodel.hpp"
 #include "offlinemessagemodel.hpp"
 #include "friendmodel.hpp"
+#include "groupmodel.hpp"
 #include "json.hpp"
 
 using namespace std;
@@ -29,6 +30,12 @@ public:
     void oneChat(const TcpConnectionPtr& conn, json& js, Timestamp time);
     // 添加好友业务
     void addFriend(const TcpConnectionPtr& conn, json& js, Timestamp time);
+    // 创建群组业务
+    void createGroup(const TcpConnectionPtr& conn, json& js, Timestamp time);
+    // 加入群组业务
+    void addGroup(const TcpConnectionPtr& conn, json& js, Timestamp time);
+    // 群组聊天业务
+    void groupChat(const TcpConnectionPtr& conn, json& js, Timestamp time);
 
     // 获取消息对应的处理器
     MsgHandler getHandler(int msgid);
@@ -49,6 +56,7 @@ private:
     UserModel       _userModel;
     OfflineMsgModel _offlineMsgModel;
     FriendModel     _firendModel;
+    GroupModel      _groupModel;
     // 互斥锁 保证线程安全
     mutex _connMutex;
 };
