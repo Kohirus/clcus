@@ -1,4 +1,4 @@
-# clcus
+# clucs
 
 This is a **cluster chat server** project that uses `muduo` as the underlying 
 communication module to handle network IO. 
