@@ -10,6 +10,7 @@
 #include "friendmodel.hpp"
 #include "groupmodel.hpp"
 #include "json.hpp"
+#include "redis.hpp"
 
 using namespace std;
 using namespace muduo;
@@ -45,6 +46,8 @@ public:
     void clientCloseException(const TcpConnectionPtr& conn);
     // 服务器异常 业务重置方法
     void reset();
+    // 从 redis 消息队列中获取订阅的消息
+    void handleRedisSuscribeMessage(int, string);
 
 private:
     ChatService();
@@ -61,6 +64,8 @@ private:
     GroupModel      _groupModel;
     // 互斥锁 保证线程安全
     mutex _connMutex;
+    // redis 操作对象
+    Redis _redis;
 };
 
 #endif // !CHATSERVICE_H
