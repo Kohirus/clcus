@@ -10,6 +10,8 @@ At the same time, `Nginx` is used for load balancing at the transport layer.
 
 In the data transfer module, it uses json to serialize and deserialize the transfer data.
 
+![clcus](https://user-images.githubusercontent.com/45937428/198868315-0bc362db-e2fd-4fb2-99fd-2ecc11902f42.png)
+
 ## How to use
 
 Type the following commands to build the project and compile:
